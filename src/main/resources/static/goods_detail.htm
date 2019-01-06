@@ -53,7 +53,7 @@
         <td id="startTime"></td>
         <td >	
         	<input type="hidden" id="remainSeconds" />
-        	<span id="miaoshaTip"></span>
+        	<span id="miaoshaTip" style="font-size:20px;font-weight:800;color:#FF9900"></span>
         </td>
         <td>
         <!--  
@@ -217,7 +217,15 @@ function countDown(){
 	var timeout;
 	if(remainSeconds > 0){//秒杀还没开始，倒计时
 	   $("#buyButton").attr("disabled", true);
-	   $("#miaoshaTip").html("秒杀倒计时："+remainSeconds+"秒");
+        var second = Math.floor(remainSeconds % 60);             // 计算秒
+        var minite = Math.floor((remainSeconds / 60) % 60);      //计算分
+        var hour = Math.floor((remainSeconds / 3600) % 24);      //计算小时
+        var day = Math.floor((remainSeconds / 3600) / 24);        //计算天
+        second = second < 10 ? "0" + second : second;
+        minite = minite < 10 ? "0" + minite : minite;
+        hour = hour < 10 ? "0" + hour : hour;
+        day = day <= 0 ? "" : day + "天";
+	   $("#miaoshaTip").html("秒杀开始时间" + day + " " + hour + ":" + minite + ":" + second);
 		timeout = setTimeout(function(){
 			$("#countDown").text(remainSeconds - 1);
 			$("#remainSeconds").val(remainSeconds - 1);
