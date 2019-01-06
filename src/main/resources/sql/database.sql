@@ -78,11 +78,16 @@ VALUES
   ( 5, '箭牌卫浴', '箭牌卫浴（ARROW）304不锈钢厨房水槽单槽洗菜盆', '/images/ad-001.jpg', '箭牌卫浴（ARROW）304不锈钢厨房水槽单槽洗菜盆 厨房洗手盆带龙头洗菜池水槽 AEO4B10558S先锋款580x', 545.00, 100 ),
   ( 6, '手表', '依伦瑞士表', '/images/ad-004.jpg', '依伦手表，瑞士手表厂商生产，采用石墨烯外壳，坚固耐用', 45.00, 50 );
 
+
 INSERT INTO `miaosha_goods`
 VALUES
-	( 1, 1, 0.01, 4, '2019-01-04 15:18:00', '2018-01-04 19:18:00' ),
-	( 2, 2, 0.01, 9, '2018-01-04 08:18:00', '2019-01-05 12:18:00' ),
-	( 3, 3, 9.99, 9, '2018-01-04 08:18:00', '2019-01-05 23:18:00' ),
-  ( 4, 4, 9.99, 8, '2018-01-04 08:18:00', '2019-01-05 23:18:00' ),
-  ( 5, 5, 9.99, 9, '2018-01-04 08:18:00', '2019-01-05 23:18:00' ),
-  ( 6, 6, 1999.99, 15, '2018-01-04 08:18:00', '2019-01-05 23:18:00' );
+	( 1, 1, 0.01, 4, DATE_SUB(NOW(),INTERVAL 0 DAY), date_add(NOW(),INTERVAL 4 HOUR) ),
+	( 2, 2, 0.01, 9, date_add(NOW(),INTERVAL -30 MINUTE), date_add(NOW(),INTERVAL 3 HOUR) ),
+	( 3, 3, 9.99, 9, DATE_SUB(NOW(),INTERVAL 1 DAY), date_add(NOW(),INTERVAL 10 HOUR) ),
+  ( 4, 4, 9.99, 8, DATE_SUB(NOW(),INTERVAL 1 DAY), date_add(NOW(),INTERVAL -30 MINUTE)),
+  ( 5, 5, 9.99, 9, DATE_SUB(NOW(),INTERVAL 1 DAY), date_add(NOW(),INTERVAL -30 MINUTE) ),
+  ( 6, 6, 1999.99, 15, DATE_SUB(NOW(),INTERVAL -1 DAY), date_add(DATE_SUB(NOW(),INTERVAL -1 DAY),INTERVAL 4 HOUR));
+
+ALTER TABLE `miaosha`.`miaosha_order`
+ADD UNIQUE INDEX `u_uid_gid` USING BTREE (`user_id` ASC, `goods_id` ASC);
+
