@@ -1,10 +1,6 @@
 package com.imooc.miaosha.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
@@ -23,36 +19,24 @@ public class UserUtil {
 	private static void createUser(int count) throws Exception{
 		List<MiaoshaUser> users = new ArrayList<MiaoshaUser>(count);
 		//生成用户
-		for(int i=0;i<count;i++) {
+		for(int i=1000;i<count;i++) {
 			MiaoshaUser user = new MiaoshaUser();
-			user.setId(13000000000L+i);
+			user.setId(Long.valueOf(i));
 			user.setLoginCount(1);
-			user.setNickname("user"+i);
+			user.setNickname("1300000"+i);
 			user.setRegisterDate(new Date());
 			user.setSalt("1a2b3c");
 			user.setPassword(MD5Util.inputPassToDbPass("123456", user.getSalt()));
 			users.add(user);
 		}
 		System.out.println("create user");
-//		//插入数据库
-//		Connection conn = DBUtil.getConn();
-//		String sql = "insert into miaosha_user(login_count, nickname, register_date, salt, password, id)values(?,?,?,?,?,?)";
-//		PreparedStatement pstmt = conn.prepareStatement(sql);
-//		for(int i=0;i<users.size();i++) {
-//			MiaoshaUser user = users.get(i);
-//			pstmt.setInt(1, user.getLoginCount());
-//			pstmt.setString(2, user.getNickname());
-//			pstmt.setTimestamp(3, new Timestamp(user.getRegisterDate().getTime()));
-//			pstmt.setString(4, user.getSalt());
-//			pstmt.setString(5, user.getPassword());
-//			pstmt.setLong(6, user.getId());
-//			pstmt.addBatch();
-//		}
-//		pstmt.executeBatch();
-//		pstmt.close();
-//		conn.close();
-//		System.out.println("insert to db");
-		//登录，生成token
+		//1、插入数据库
+		//insertIntoDB(users);
+		//2、登录，生成token
+		createTokenFile(users);
+	}
+
+	private static void createTokenFile(List<MiaoshaUser> users) throws IOException {
 		String urlString = "http://localhost:8080/login/do_login";
 		File file = new File("D:/tokens.txt");
 		if(file.exists()) {
@@ -68,7 +52,7 @@ public class UserUtil {
 			co.setRequestMethod("POST");
 			co.setDoOutput(true);
 			OutputStream out = co.getOutputStream();
-			String params = "mobile="+user.getId()+"&password="+MD5Util.inputPassToFormPass("123456");
+			String params = "mobile="+user.getNickname()+"&password="+MD5Util.inputPassToFormPass("123456");
 			out.write(params.getBytes());
 			out.flush();
 			InputStream inputStream = co.getInputStream();
@@ -84,19 +68,38 @@ public class UserUtil {
 			JSONObject jo = JSON.parseObject(response);
 			String token = jo.getString("data");
 			System.out.println("create token : " + user.getId());
-			
-			String row = user.getId()+","+token;
+
+			String row = user.getNickname()+","+token;
 			raf.seek(raf.length());
 			raf.write(row.getBytes());
 			raf.write("\r\n".getBytes());
 			System.out.println("write to file : " + user.getId());
 		}
 		raf.close();
-		
-		System.out.println("over");
+		System.out.println("******************token file create success！***********************");
 	}
-	
+
+	private static void insertIntoDB(List<MiaoshaUser> users) throws Exception {
+		Connection conn = DBUtil.getConn();
+		String sql = "insert into miaosha_user(loginCount, nickname, registerDate, salt, password, id)values(?,?,?,?,?,?)";
+		PreparedStatement pstmt = conn.prepareStatement(sql);
+		for(int i=0;i<users.size();i++) {
+			MiaoshaUser user = users.get(i);
+			pstmt.setInt(1, user.getLoginCount());
+			pstmt.setString(2, user.getNickname());
+			pstmt.setTimestamp(3, new Timestamp(user.getRegisterDate().getTime()));
+			pstmt.setString(4, user.getSalt());
+			pstmt.setString(5, user.getPassword());
+			pstmt.setLong(6, user.getId());
+			pstmt.addBatch();
+		}
+		pstmt.executeBatch();
+		pstmt.close();
+		conn.close();
+		System.out.println("****************insert to db success *************");
+	}
+
 	public static void main(String[] args)throws Exception {
-		createUser(5000);
+		createUser(6000);
 	}
 }
