@@ -35,6 +35,8 @@ public class GoodsService {
 			MiaoshaGoods g = new MiaoshaGoods();
 			g.setGoodsId(goods.getId());
 			g.setStockCount(goods.getStockCount());
+			g.setStartDate(goods.getStartDate());
+			g.setEndDate(goods.getEndDate());
 			goodsDao.resetStock(g);
 		}
 	}

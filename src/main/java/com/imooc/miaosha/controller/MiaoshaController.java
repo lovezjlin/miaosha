@@ -2,6 +2,7 @@ package com.imooc.miaosha.controller;
 
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -76,17 +78,19 @@ public class MiaoshaController implements InitializingBean {
 	
 	@RequestMapping(value="/reset", method=RequestMethod.GET)
     @ResponseBody
-    public Result<Boolean> reset(Model model) {
+    public Result<String> reset(Model model) {
 		List<GoodsVo> goodsList = goodsService.listGoodsVo();
 		for(GoodsVo goods : goodsList) {
 			goods.setStockCount(10);
+			goods.setStartDate(DateUtils.addMinutes(new Date(),2));
+			goods.setEndDate(DateUtils.addHours(new Date(),3));
 			redisService.set(GoodsKey.getMiaoshaGoodsStock, ""+goods.getId(), 10);
 			localOverMap.put(goods.getId(), false);
 		}
 		redisService.delete(OrderKey.getMiaoshaOrderByUidGid);
 		redisService.delete(MiaoshaKey.isGoodsOver);
 		miaoshaService.reset(goodsList);
-		return Result.success(true);
+		return Result.success("重置系统参数成功");
 	}
 	
 	/**
